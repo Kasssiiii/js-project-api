@@ -1,9 +1,6 @@
 import cors from "cors";
 import express from "express";
-import data from "./data.json";
 import crypto from "crypto";
-import moment from "moment";
-import { error } from "console";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
@@ -51,15 +48,16 @@ app.get("/", (req, res) => {
   res.send("Hello Technigo!");
 });
 
-app.get("/thoughts", (req, res) => {
-  res.json(data);
+app.get("/thoughts", async (req, res) => {
+  const thoughts = await Thought.find();
+  res.json(thoughts);
 });
 
 //sending a single thought
-app.get("/thoughts/:thoughtId", (req, res) => {
+app.get("/thoughts/:thoughtId", async (req, res) => {
   const id = req.params.thoughtId;
-  const post = data.filter((item) => {
-    return item._id === id;
+  const post = await Thought.find({
+    _id: id,
   });
   if (post.length === 0) {
     res.status(404).json({ error: "Thought not found" });
@@ -68,7 +66,7 @@ app.get("/thoughts/:thoughtId", (req, res) => {
 });
 
 // accepting/ adding a new thought
-app.post("/thoughts", (req, res) => {
+app.post("/thoughts", async (req, res) => {
   const note = req.body.message;
 
   if (!note) {
@@ -83,32 +81,29 @@ app.post("/thoughts", (req, res) => {
     return;
   }
 
-  const id = crypto.randomBytes(12).toString("hex");
-  const date = moment().format();
-
-  const thought = {
-    _id: id,
+  const thought = new Thought({
     message: note,
-    hearts: 0,
-    createdAt: date,
-    __v: 0,
-  };
-
-  data.unshift(thought);
+  });
+  await thought.save();
   res.status(201).send(thought);
 });
 
 //liking a thought with a given ID
-app.post("/thoughts/:thoughtId/like", (req, res) => {
+app.post("/thoughts/:thoughtId/like", async (req, res) => {
   const id = req.params.thoughtId;
-  const post = data.filter((item) => {
-    return item._id === id;
-  });
-  if (post.length === 0) {
-    res.status(404).json({ error: "Thought not found" });
+  try {
+    const likedThought = await Thought.findOneAndUpdate(
+      { _id: id },
+      { $inc: { hearts: 1 } },
+      { new: true }
+    );
+
+    res.status(201).json(likedThought);
+  } catch (error) {
+    res.status(404).json({
+      error: "Thought not found",
+    });
   }
-  post[0].hearts = post[0].hearts + 1;
-  res.json(post[0]);
 });
 
 // Start the server
