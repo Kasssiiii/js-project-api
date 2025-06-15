@@ -63,7 +63,7 @@ app.post("/thoughts", (req, res) => {
     __v: 0,
   };
 
-  data.push(thought);
+  data.unshift(thought);
   res.status(201).send(thought);
 });
 
