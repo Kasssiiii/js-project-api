@@ -17,3 +17,6 @@ Every project should be deployed somewhere. Be sure to include the link to the d
 - API endpoints for creating, listing and liking thoughts to work with the existing Happy Thoughts App
 - work with static data
 
+## Second stage
+- API uses Mongo DB for storing thoughts
+- Data is now persistent
