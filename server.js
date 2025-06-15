@@ -1,6 +1,9 @@
 import cors from "cors";
 import express from "express";
 import data from "./data.json";
+import crypto from "crypto";
+import moment from "moment";
+import { error } from "console";
 
 // Defines the port the app will run on. Defaults to 8080, but can be overridden
 // when starting the server. Example command to overwrite PORT env variable value:
@@ -21,6 +24,7 @@ app.get("/thoughts", (req, res) => {
   res.json(data);
 });
 
+//sending a single thought
 app.get("/thoughts/:thoughtId", (req, res) => {
   const id = req.params.thoughtId;
   const post = data.filter((item) => {
@@ -32,9 +36,33 @@ app.get("/thoughts/:thoughtId", (req, res) => {
   res.json(post[0]);
 });
 
-// new thought
+// accepting/ adding a new thought
 app.post("/thoughts", (req, res) => {
-  res.send("Hello Technigo!");
+  const note = req.body.message;
+
+  if (!note) {
+    res.status(400).send({ error: "Could not save thought. Message missing" });
+    return;
+  }
+
+  if (note.length < 5) {
+    res.status(400).send({ error: "Text is shorter than minimum allowed lenght of 5" });
+    return;
+  }
+
+  const id = crypto.randomBytes(12).toString("hex");
+  const date = moment().format();
+
+  const thought = {
+    _id: id,
+    message: note,
+    hearts: 0,
+    createdAt: date,
+    __v: 0,
+  };
+
+  data.push(thought);
+  res.status(201).send(thought);
 });
 
 app.post("/thoughts/:postId/like", (req, res) => {
