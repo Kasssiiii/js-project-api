@@ -4,6 +4,37 @@ import data from "./data.json";
 import crypto from "crypto";
 import moment from "moment";
 import { error } from "console";
+import dotenv from "dotenv";
+import mongoose from "mongoose";
+
+dotenv.config();
+
+const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/thoughts";
+mongoose.connect(mongoUrl);
+
+const thoughtSchema = new mongoose.Schema({
+  _id: {
+    type: String,
+    default: () => {
+      return crypto.randomBytes(12).toString("hex");
+    },
+  },
+  message: String,
+  hearts: {
+    type: Number,
+    default: 0,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  __v: {
+    type: Number,
+    default: 0,
+  },
+});
+
+const Thought = mongoose.model("Thought", thoughtSchema);
 
 // Defines the port the app will run on. Defaults to 8080, but can be overridden
 // when starting the server. Example command to overwrite PORT env variable value:
