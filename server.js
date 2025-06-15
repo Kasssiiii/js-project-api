@@ -46,7 +46,9 @@ app.post("/thoughts", (req, res) => {
   }
 
   if (note.length < 5) {
-    res.status(400).send({ error: "Text is shorter than minimum allowed lenght of 5" });
+    res
+      .status(400)
+      .send({ error: "Text is shorter than minimum allowed lenght of 5" });
     return;
   }
 
@@ -65,8 +67,17 @@ app.post("/thoughts", (req, res) => {
   res.status(201).send(thought);
 });
 
-app.post("/thoughts/:postId/like", (req, res) => {
-  res.send("Hello Technigo!");
+//liking a thought with a given ID
+app.post("/thoughts/:thoughtId/like", (req, res) => {
+  const id = req.params.thoughtId;
+  const post = data.filter((item) => {
+    return item._id === id;
+  });
+  if (post.length === 0) {
+    res.status(404).json({ error: "Thought not found" });
+  }
+  post[0].hearts = post[0].hearts + 1;
+  res.json(post[0]);
 });
 
 // Start the server
