@@ -4,11 +4,14 @@ import crypto from "crypto";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 
+// loading environment from env file 
 dotenv.config();
 
+//connecting to MondoDB
 const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/thoughts";
 mongoose.connect(mongoUrl);
 
+//data model for Thoughts
 const thoughtSchema = new mongoose.Schema({
   _id: {
     type: String,
@@ -48,6 +51,7 @@ app.get("/", (req, res) => {
   res.send("Hello Technigo!");
 });
 
+//listing all the thoughts
 app.get("/thoughts", async (req, res) => {
   const thoughts = await Thought.find();
   res.json(thoughts);
@@ -106,7 +110,7 @@ app.post("/thoughts/:thoughtId/like", async (req, res) => {
   }
 });
 
-// Start the server
+// Starting the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
