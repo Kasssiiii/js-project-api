@@ -158,6 +158,25 @@ app.delete("/thoughts/:thoughtId", async (req, res) => {
   res.json(result);
 });
 
+// editing a thought
+app.patch('/thoughts/:thoughtId', authenticateUser);
+app.patch('/thoughts/:thoughtId', async (req, res) => {
+  console.log("patching a post with id" + req.params.thoughtId);
+  try {
+    const edited = await Thought.findByIdAndUpdate(
+      req.params.thoughtId,
+      { message: req.body.message },
+      { new: true, runValidators: true }
+    )
+    res.json(edited)
+  } catch (error) {
+    res.status(404).json({
+      error: "Thought not found",
+    });
+  }
+})
+
+
 // accepting/ adding a new thought
 
 app.post("/thoughts", authenticateUser);
