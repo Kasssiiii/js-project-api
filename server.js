@@ -25,6 +25,10 @@ const thoughtSchema = new mongoose.Schema({
     type: String,
     require: true,
   },
+  userName: {
+    type: String,
+    require: true,
+  },
   hearts: {
     type: Number,
     default: 0,
@@ -161,17 +165,23 @@ app.delete("/thoughts/:thoughtId", async (req, res) => {
 // editing a thought
 app.patch('/thoughts/:thoughtId', authenticateUser);
 app.patch('/thoughts/:thoughtId', async (req, res) => {
-  console.log("patching a post with id" + req.params.thoughtId);
   try {
-    const edited = await Thought.findByIdAndUpdate(
-      req.params.thoughtId,
+    const edited = await Thought.findOneAndUpdate(
+      { _id: req.params.thoughtId, userName: req.user.name },
       { message: req.body.message },
       { new: true, runValidators: true }
     )
-    res.json(edited)
+    if (!edited) {
+      res.status(404).json({
+        error: "Thought not found, or you are not the owner of this thought",
+      });
+    }
+    else {
+      res.json(edited)
+    }
   } catch (error) {
     res.status(404).json({
-      error: "Thought not found",
+      error: "Thought not found, or you are not the owner of this thought",
     });
   }
 })
@@ -180,7 +190,6 @@ app.patch('/thoughts/:thoughtId', async (req, res) => {
 // accepting/ adding a new thought
 
 app.post("/thoughts", authenticateUser);
-
 app.post("/thoughts", async (req, res) => {
   const note = req.body.message;
 
@@ -198,15 +207,13 @@ app.post("/thoughts", async (req, res) => {
 
   const thought = new Thought({
     message: note,
+    userName: req.user.name
   });
   await thought.save();
   res.status(201).send(thought);
 });
 
 //liking a thought with a given ID
-
-app.post("/thoughts/:thoughtId/like", authenticateUser);
-
 app.post("/thoughts/:thoughtId/like", async (req, res) => {
   const id = req.params.thoughtId;
   try {
