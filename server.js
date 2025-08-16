@@ -111,7 +111,7 @@ app.post("/users/:userName", async (req, res) => {
     res.json({ userName: user.name, accessToken: user.accessToken });
   } else {
     //failure
-    res.json({ notFound: true });
+    res.status(401).json({ notFound: true });
   }
 });
 
