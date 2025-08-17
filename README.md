@@ -20,3 +20,8 @@ Every project should be deployed somewhere. Be sure to include the link to the d
 ## Second stage
 - API uses Mongo DB for storing thoughts
 - Data is now persistent
+
+## Third stage
+- Support for user authentication
+- Post creation, edition and deletion now require authentication
+- deployed on onRender: https://js-project-api-vj6h.onrender.com
